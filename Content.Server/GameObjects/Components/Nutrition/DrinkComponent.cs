@@ -41,12 +41,15 @@ namespace Content.Server.GameObjects.Components.Nutrition
         private bool _defaultToOpened;
         [ViewVariables]
         public ReagentUnit TransferAmount { get; private set; } = ReagentUnit.New(2);
+
         [ViewVariables]
-        protected bool Opened { get; set; }
+        public bool Opened => _opened;
+
         [ViewVariables]
         public bool Empty => _contents.CurrentVolume.Float() <= 0;
 
         private AppearanceComponent _appearanceComponent;
+        private bool _opened = false;
         private string _soundCollection;
 
         public override void ExposeData(ObjectSerializer serializer)
@@ -69,7 +72,7 @@ namespace Content.Server.GameObjects.Components.Nutrition
             _contents.Capabilities = SolutionCaps.PourIn
                                      | SolutionCaps.PourOut
                                      | SolutionCaps.Injectable;
-            Opened = _defaultToOpened;
+            _opened = _defaultToOpened;
             UpdateAppearance();
         }
 
@@ -85,14 +88,14 @@ namespace Content.Server.GameObjects.Components.Nutrition
         }
         bool IUse.UseEntity(UseEntityEventArgs args)
         {
-            if (!Opened)
+            if (!_opened)
             {
                 //Do the opening stuff like playing the sounds.
                 var soundCollection = _prototypeManager.Index<SoundCollectionPrototype>(_soundCollection);
                 var file = _random.Pick(soundCollection.PickFiles);
 
                 EntitySystem.Get<AudioSystem>().PlayFromEntity(file, args.User, AudioParams.Default);
-                Opened = true;
+                _opened = true;
                 return false;
             }
             return TryUseDrink(args.User);
@@ -123,7 +126,7 @@ namespace Content.Server.GameObjects.Components.Nutrition
                 return false;
             }
 
-            if (!Opened)
+            if (!_opened)
             {
                 target.PopupMessage(target, Loc.GetString("Open it first!"));
                 return false;
