@@ -21512,6 +21512,9 @@ entities:
     pos: -29.434454,8.191761
     rot: -1.5707963267948966 rad
     type: Transform
+  - qualities:
+    - Welding
+    type: Welder
 - uid: 2265
   type: LockerWeldingSupplies
   components:
@@ -28681,6 +28684,9 @@ entities:
   components:
   - parent: 382
     type: Transform
+  - qualities:
+    - Welding
+    type: Welder
 - uid: 3019
   type: Crowbar
   components:
@@ -28753,6 +28759,9 @@ entities:
   components:
   - parent: 384
     type: Transform
+  - qualities:
+    - Welding
+    type: Welder
 - uid: 3027
   type: Crowbar
   components:
@@ -28876,6 +28885,9 @@ entities:
   components:
   - parent: 2251
     type: Transform
+  - qualities:
+    - Welding
+    type: Welder
 - uid: 3042
   type: Crowbar
   components:
@@ -30171,4 +30183,13 @@ entities:
     pos: 7.5,13.5
     rot: -1.5707963267948966 rad
     type: Transform
+- uid: 3209
+  type: DrinkMugOne
+  components:
+  - parent: 0
+    pos: -24.991764,5.2013555
+    rot: -1.5707963267948966 rad
+    type: Transform
+  - caps: PourIn, PourOut, Injectable
+    type: Solution
 ...
