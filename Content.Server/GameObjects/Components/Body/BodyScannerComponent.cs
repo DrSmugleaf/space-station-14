@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Content.Server.Body;
-using Content.Shared.Body.BodyScanner;
+using Content.Shared.Body.Scanner;
 using Content.Shared.Interfaces.GameObjects.Components;
 using Robust.Server.GameObjects.Components.UserInterface;
 using Robust.Server.Interfaces.GameObjects;
@@ -25,7 +25,7 @@ namespace Content.Server.GameObjects.Components.Body
 
             if (actor.playerSession.AttachedEntity.TryGetComponent(out BodyManagerComponent attempt))
             {
-                _userInterface.SetState(InterfaceState(attempt.Template, attempt.PartDictionary));
+                _userInterface.SetState(InterfaceState(attempt.Template, attempt.Parts));
             }
 
             _userInterface.Open(actor.playerSession);
@@ -51,6 +51,7 @@ namespace Content.Server.GameObjects.Components.Body
             foreach (var (slotName, part) in bodyParts)
             {
                 var mechanismData = new List<BodyScannerMechanismData>();
+
                 foreach (var mechanism in part.Mechanisms)
                 {
                     mechanismData.Add(new BodyScannerMechanismData(mechanism.Name, mechanism.Description,

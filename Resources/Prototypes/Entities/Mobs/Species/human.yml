@@ -11,6 +11,7 @@
   - type: Flashable
   - type: Hands
   - type: MovementSpeedModifier
+  - type: MovedByPressure
   - type: Hunger
   - type: Thirst
   # Organs
@@ -113,15 +114,14 @@
       layer:
       - Opaque
       - MobImpassable
-
   - type: BodyManager
-    BaseTemplate: bodyTemplate.Humanoid
-    BasePreset: bodyPreset.BasicHuman
+    baseTemplate: bodyTemplate.Humanoid
+    basePreset: bodyPreset.BasicHuman
   - type: MobStateManager
   - type: HeatResistance
   - type: Appearance
     visuals:
-    - type: SpeciesVisualizer
+    - type: RotationVisualizer
     - type: BuckleVisualizer
   - type: CombatMode
   - type: Teleportable
@@ -137,6 +137,7 @@
   - type: Grammar
     proper: true
   - type: Pullable
+  - type: CanSeeGases
 
 - type: entity
   save: false
@@ -230,13 +231,13 @@
           layer:
           - MobImpassable
     - type: BodyManager
-      BaseTemplate: bodyTemplate.Humanoid
-      BasePreset: bodyPreset.BasicHuman
+      baseTemplate: bodyTemplate.Humanoid
+      basePreset: bodyPreset.BasicHuman
     - type: MobStateManager
     - type: Damageable
     - type: Appearance
       visuals:
-        - type: SpeciesVisualizer
+        - type: RotationVisualizer
     - type: HumanoidAppearance
     - type: Grammar
       proper: true

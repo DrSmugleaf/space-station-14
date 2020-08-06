@@ -92,6 +92,7 @@
   - anchor
   - unanchor
   - tubeconnections
+  - destroymechanism
   CanViewVar: true
   CanAdminPlace: true
 
@@ -171,6 +172,13 @@
   - anchor
   - unanchor
   - tubeconnections
+  - addatmos
+  - addgas
+  - fillgas
+  - listgases
+  - removegas
+  - settemp
+  - destroymechanism
   CanViewVar: true
   CanAdminPlace: true
   CanScript: true

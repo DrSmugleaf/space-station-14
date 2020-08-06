@@ -4,6 +4,7 @@ using Content.Server.GameObjects;
 using Content.Server.GameObjects.Components.Damage;
 using Content.Server.Interfaces.Chat;
 using Content.Server.Interfaces.GameTicking;
+using Content.Shared.GameObjects.Components.Damage;
 using Robust.Server.Interfaces.Player;
 using Robust.Server.Player;
 using Robust.Shared.Enums;
@@ -34,13 +35,22 @@ namespace Content.Server.GameTicking.GameRules
         public override void Added()
         {
             _chatManager.DispatchServerAnnouncement("The game is now a death match. Kill everybody else to win!");
+
+            _entityManager.EventBus.SubscribeEvent<HealthChangedEventArgs>(EventSource.Local, this, OnHealthChanged);
             _playerManager.PlayerStatusChanged += PlayerManagerOnPlayerStatusChanged;
         }
 
         public override void Removed()
         {
             base.Removed();
+
+            _entityManager.EventBus.UnsubscribeEvent<HealthChangedEventArgs>(EventSource.Local, this);
             _playerManager.PlayerStatusChanged -= PlayerManagerOnPlayerStatusChanged;
+        }
+
+        private void OnHealthChanged(HealthChangedEventArgs message)
+        {
+            _runDelayedCheck();
         }
 
         private void _checkForWinner()
@@ -51,7 +61,7 @@ namespace Content.Server.GameTicking.GameRules
             foreach (var playerSession in _playerManager.GetAllPlayers())
             {
                 if (playerSession.AttachedEntity == null
-                    || !playerSession.AttachedEntity.TryGetComponent(out BaseDamageableComponent damageable))
+                    || !playerSession.AttachedEntity.TryGetComponent(out IDamageableComponent damageable))
                 {
                     continue;
                 }

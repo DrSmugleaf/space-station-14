@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Content.Shared.GameObjects.Components.Body;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 using Robust.Shared.ViewVariables;
@@ -11,8 +12,7 @@ namespace Content.Shared.Body.Mechanism
     ///     Prototype for the Mechanism class.
     /// </summary>
     [Prototype("mechanism")]
-    [NetSerializable]
-    [Serializable]
+    [Serializable, NetSerializable]
     public class MechanismPrototype : IPrototype, IIndexedPrototype
     {
         private List<string> _behaviorClasses;

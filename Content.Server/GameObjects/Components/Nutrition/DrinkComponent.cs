@@ -1,10 +1,12 @@
-﻿using Content.Server.GameObjects.Components.Chemistry;
+﻿using Content.Server.GameObjects.Components.Body.Digestive;
+using Content.Server.GameObjects.Components.Chemistry;
 using Content.Server.GameObjects.Components.Fluids;
 using Content.Server.GameObjects.EntitySystems.Click;
 using Content.Server.Interfaces.GameObjects.Components.Interaction;
 using Content.Shared.Audio;
 using Content.Shared.Chemistry;
 using Content.Shared.GameObjects.Components.Nutrition;
+using Content.Shared.GameObjects.EntitySystems;
 using Content.Shared.Interfaces;
 using Content.Shared.Interfaces.GameObjects.Components;
 using Robust.Server.GameObjects;
@@ -26,7 +28,7 @@ namespace Content.Server.GameObjects.Components.Nutrition
 {
     [RegisterComponent]
     [ComponentReference(typeof(IAfterInteract))]
-    public class DrinkComponent : Component, IUse, IAfterInteract, ISolutionChange,IExamine, ILand
+    public class DrinkComponent : Component, IUse, IAfterInteract, ISolutionChange, IExamine, ILand
     {
 #pragma warning disable 649
         [Dependency] private readonly IPrototypeManager _prototypeManager;

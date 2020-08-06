@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
 using Content.Server.GameObjects.Components.Access;
+using Content.Server.GameObjects.Components.Atmos;
 using Content.Server.GameObjects.Components.Damage;
 using Content.Server.GameObjects.Components.GUI;
 using Content.Server.GameObjects.Components.Mobs;
 using Content.Server.Interfaces.GameObjects;
 using Content.Shared.Damage;
+using Content.Shared.GameObjects.Components.Damage;
 using Content.Shared.GameObjects.Components.Doors;
 using Content.Shared.GameObjects.Components.Movement;
 using Content.Shared.Interfaces.GameObjects.Components;
@@ -43,6 +45,7 @@ namespace Content.Server.GameObjects
         protected const float AutoCloseDelay = 5;
         protected float CloseSpeed = AutoCloseDelay;
 
+        private AirtightComponent airtightComponent;
         private ICollidableComponent _collidableComponent;
         private AppearanceComponent _appearance;
         private CancellationTokenSource _cancellationTokenSource;
@@ -71,6 +74,7 @@ namespace Content.Server.GameObjects
         {
             base.Initialize();
 
+            airtightComponent = Owner.GetComponent<AirtightComponent>();
             _collidableComponent = Owner.GetComponent<ICollidableComponent>();
             _appearance = Owner.GetComponent<AppearanceComponent>();
             _cancellationTokenSource = new CancellationTokenSource();
@@ -176,6 +180,7 @@ namespace Content.Server.GameObjects
 
             Timer.Spawn(OpenTimeOne, async () =>
             {
+                airtightComponent.AirBlocked = false;
                 _collidableComponent.Hard = false;
 
                 await Timer.Delay(OpenTimeTwo, _cancellationTokenSource.Token);
@@ -223,7 +228,7 @@ namespace Content.Server.GameObjects
                 foreach (var e in collidesWith)
                 {
                     if (!e.TryGetComponent(out StunnableComponent stun)
-                        || !e.TryGetComponent(out BaseDamageableComponent damage)
+                        || !e.TryGetComponent(out IDamageableComponent damage)
                         || !e.TryGetComponent(out ICollidableComponent otherBody)
                         || !Owner.TryGetComponent(out ICollidableComponent body))
                         continue;
@@ -272,6 +277,7 @@ namespace Content.Server.GameObjects
                     CheckCrush();
                 }
 
+                airtightComponent.AirBlocked = true;
                 _collidableComponent.Hard = true;
 
                 await Timer.Delay(CloseTimeTwo, _cancellationTokenSource.Token);

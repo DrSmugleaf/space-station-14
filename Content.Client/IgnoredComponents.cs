@@ -96,7 +96,6 @@
             "BarSign",
             "DroppedBodyPart",
             "DroppedMechanism",
-            "BodyManager",
             "SolarPanel",
             "BodyScanner",
             "Stunbaton",
@@ -149,6 +148,9 @@
             "Conveyor",
             "ConveyorSwitch",
             "Flippable",
+            "Airtight",
+            "MovedByPressure",
+            "MobStateManager",
         };
     }
 }
