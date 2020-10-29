@@ -18,8 +18,8 @@ namespace Content.IntegrationTests.Tests.Commands
         {
             var server = StartServerDummyTicker();
 
-            IEntity human = null;
-            IDamageableComponent damageable = null;
+            IEntity human;
+            IDamageableComponent damageable;
 
             server.Assert(() =>
             {
