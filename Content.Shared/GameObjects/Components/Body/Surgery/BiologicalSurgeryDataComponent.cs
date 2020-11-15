@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Content.Shared.GameObjects.Components.Body.Mechanism;
 using Content.Shared.GameObjects.Components.Body.Part;
 using Content.Shared.Interfaces;
@@ -98,34 +99,34 @@ namespace Content.Shared.GameObjects.Components.Body.Surgery
         {
             if (Parent == null)
             {
-                return "";
+                return string.Empty;
             }
 
-            var toReturn = "";
+            var toReturn = new StringBuilder();
 
             if (_skinOpened && !_vesselsClamped)
             {
                 // Case: skin is opened, but not clamped.
-                toReturn += Loc.GetString("The skin on {0:their} {1} has an incision, but it is prone to bleeding.\n",
-                    Owner, Parent.Name);
+                toReturn.Append(Loc.GetString("The skin on {0:their} {1} has an incision, but it is prone to bleeding.\n",
+                    Owner, Parent.Name));
             }
             else if (_skinOpened && _vesselsClamped && !_skinRetracted)
             {
                 // Case: skin is opened and clamped, but not retracted.
-                toReturn += Loc.GetString("The skin on {0:their} {1} has an incision, but it is not retracted.\n",
-                    Owner, Parent.Name);
+                toReturn.Append(Loc.GetString("The skin on {0:their} {1} has an incision, but it is not retracted.\n",
+                    Owner, Parent.Name));
             }
             else if (_skinOpened && _vesselsClamped && _skinRetracted)
             {
                 // Case: skin is fully open.
-                toReturn += Loc.GetString("There is an incision on {0:their} {1}.\n", Owner, Parent.Name);
+                toReturn.Append(Loc.GetString("There is an incision on {0:their} {1}.\n", Owner, Parent.Name));
                 foreach (var mechanism in _disconnectedOrgans)
                 {
-                    toReturn += Loc.GetString("{0:their} {1} is loose.\n", Owner, mechanism.Name);
+                    toReturn.Append(Loc.GetString("{0:their} {1} is loose.\n", Owner, mechanism.Name));
                 }
             }
 
-            return toReturn;
+            return toReturn.ToString();
         }
 
         public override bool CanAddMechanism(IMechanism mechanism)
