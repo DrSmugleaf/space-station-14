@@ -20,6 +20,12 @@ namespace Content.IntegrationTests
     [Parallelizable(ParallelScope.All)]
     public abstract class ContentIntegrationTest : RobustIntegrationTest
     {
+        [SetUp]
+        public void Setup()
+        {
+            Console.WriteLine($"Running {GetType()}");
+        }
+
         protected sealed override ClientIntegrationInstance StartClient(ClientIntegrationOptions options = null)
         {
             options ??= new ClientIntegrationOptions();
