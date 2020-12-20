@@ -34,6 +34,8 @@ namespace Content.Shared.GameObjects.Components.Damage
 
         public override uint? NetID => ContentNetIDs.DAMAGEABLE;
 
+        private readonly Dictionary<DamageClass, List<DamageType>> _classesToTypes = new();
+        private readonly Dictionary<DamageType, DamageClass> _typesToClasses = new();
         private readonly Dictionary<DamageType, int> _damageList = DamageTypeExtensions.ToDictionary();
         private readonly HashSet<DamageType> _supportedTypes = new();
         private readonly HashSet<DamageClass> _supportedClasses = new();

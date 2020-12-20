@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using Robust.Shared.GameObjects.Systems;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 using Robust.Shared.ViewVariables;
@@ -15,17 +15,23 @@ namespace Content.Shared.Damage.DamageContainer
     [Serializable, NetSerializable]
     public class DamageContainerPrototype : IPrototype, IIndexedPrototype
     {
+        private string _id;
         private bool _supportAll;
         private HashSet<DamageClass> _supportedClasses;
         private HashSet<DamageType> _supportedTypes;
-        private string _id;
+        private Dictionary<DamageClass, List<DamageType>> _classesToTypes;
+        private Dictionary<DamageType, DamageClass> _typesToClasses;
+
+        [ViewVariables] public string ID => _id;
 
         // TODO NET 5 IReadOnlySet
         [ViewVariables] public IReadOnlyCollection<DamageClass> SupportedClasses => _supportedClasses;
 
         [ViewVariables] public IReadOnlyCollection<DamageType> SupportedTypes => _supportedTypes;
 
-        [ViewVariables] public string ID => _id;
+        [ViewVariables] public IReadOnlyDictionary<DamageClass, IReadOnlyList<DamageType>> ClassesToTypes;
+
+        [ViewVariables] public IReadOnlyDictionary<DamageType, DamageClass> TypesToClasses => _typesToClasses;
 
         public virtual void LoadFrom(YamlMappingNode mapping)
         {
@@ -35,6 +41,7 @@ namespace Content.Shared.Damage.DamageContainer
             serializer.DataField(ref _supportAll, "supportAll", false);
             serializer.DataField(ref _supportedClasses, "supportedClasses", new HashSet<DamageClass>());
             serializer.DataField(ref _supportedTypes, "supportedTypes", new HashSet<DamageType>());
+            serializer.DataField(ref _classesToTypes, "classesToTypes", EntitySystem.Get<DamageSystem>());
 
             if (_supportAll)
             {
