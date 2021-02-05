@@ -6,7 +6,6 @@ using Content.Server.GameObjects.Components.Strap;
 using Content.Shared.GameObjects.Components.Body;
 using Content.Shared.GameObjects.Components.Body.Part;
 using Content.Shared.GameObjects.Components.Buckle;
-using Content.Shared.GameObjects.EntitySystems;
 using Content.Shared.GameObjects.EntitySystems.ActionBlocker;
 using Content.Shared.GameObjects.EntitySystems.EffectBlocker;
 using Content.Shared.Utility;
@@ -45,7 +44,7 @@ namespace Content.IntegrationTests.Tests.Buckle
         public async Task BuckleUnbuckleCooldownRangeTest()
         {
             var options = new ServerIntegrationOptions {ExtraPrototypes = PROTOTYPES};
-            var server = StartServerDummyTicker(options);
+            var server = StartServer(options);
 
             IEntity human = null;
             IEntity chair = null;
@@ -55,13 +54,14 @@ namespace Content.IntegrationTests.Tests.Buckle
             await server.WaitAssertion(() =>
             {
                 var mapManager = IoCManager.Resolve<IMapManager>();
-
-                mapManager.CreateNewMapEntity(MapId.Nullspace);
-
                 var entityManager = IoCManager.Resolve<IEntityManager>();
 
-                human = entityManager.SpawnEntity("BuckleDummy", MapCoordinates.Nullspace);
-                chair = entityManager.SpawnEntity("StrapDummy", MapCoordinates.Nullspace);
+                var gridId = new GridId(1);
+                var grid = mapManager.GetGrid(gridId);
+                var coordinates = grid.GridEntityId.ToCoordinates();
+
+                human = entityManager.SpawnEntity("BuckleDummy", coordinates);
+                chair = entityManager.SpawnEntity("StrapDummy", coordinates);
 
                 // Default state, unbuckled
                 Assert.True(human.TryGetComponent(out buckle));
@@ -206,19 +206,11 @@ namespace Content.IntegrationTests.Tests.Buckle
             await server.WaitAssertion(() =>
             {
                 var mapManager = IoCManager.Resolve<IMapManager>();
-
-                var mapId = new MapId(1);
-                mapManager.CreateNewMapEntity(mapId);
-
                 var entityManager = IoCManager.Resolve<IEntityManager>();
-                var gridId = new GridId(1);
-                var grid = mapManager.CreateGrid(mapId, gridId);
-                var coordinates = grid.GridEntityId.ToCoordinates();
-                var tileManager = IoCManager.Resolve<ITileDefinitionManager>();
-                var tileId = tileManager["underplating"].TileId;
-                var tile = new Tile(tileId);
 
-                grid.SetTile(coordinates, tile);
+                var gridId = new GridId(1);
+                var grid = mapManager.GetGrid(gridId);
+                var coordinates = grid.GridEntityId.ToCoordinates();
 
                 human = entityManager.SpawnEntity("BuckleDummy", coordinates);
                 chair = entityManager.SpawnEntity("StrapDummy", coordinates);
@@ -295,19 +287,11 @@ namespace Content.IntegrationTests.Tests.Buckle
             await server.WaitAssertion(() =>
             {
                 var mapManager = IoCManager.Resolve<IMapManager>();
-
-                var mapId = new MapId(1);
-                mapManager.CreateNewMapEntity(mapId);
-
                 var entityManager = IoCManager.Resolve<IEntityManager>();
-                var gridId = new GridId(1);
-                var grid = mapManager.CreateGrid(mapId, gridId);
-                var coordinates = grid.GridEntityId.ToCoordinates();
-                var tileManager = IoCManager.Resolve<ITileDefinitionManager>();
-                var tileId = tileManager["underplating"].TileId;
-                var tile = new Tile(tileId);
 
-                grid.SetTile(coordinates, tile);
+                var gridId = new GridId(1);
+                var grid = mapManager.GetGrid(gridId);
+                var coordinates = grid.GridEntityId.ToCoordinates();
 
                 human = entityManager.SpawnEntity("BuckleDummy", coordinates);
                 chair = entityManager.SpawnEntity("StrapDummy", coordinates);
