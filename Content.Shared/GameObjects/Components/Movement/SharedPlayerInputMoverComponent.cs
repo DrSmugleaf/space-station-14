@@ -67,6 +67,7 @@ namespace Content.Shared.GameObjects.Components.Movement
             {
                 if (Owner.TryGetComponent(out MovementSpeedModifierComponent? component))
                 {
+                    // Logger.Info($"Sprint: {component.CurrentSprintSpeed}");
                     return component.CurrentSprintSpeed;
                 }
 
@@ -94,6 +95,9 @@ namespace Content.Shared.GameObjects.Components.Movement
                     // So return a full-length vector as if it's a full tick.
                     // Physics system will have the correct time step anyways.
                     var immediateDir = DirVecForButtons(_heldMoveButtons);
+                    // Logger.Info($"Not simulation: Sprinting {Sprinting} | IDir {immediateDir}");
+                    // Logger.Info($"Tick: {_gameTiming.CurTick} Sprinting: {Sprinting}");
+                    // Logger.Info($"Tick: {_gameTiming.CurTick} immediateDir: {immediateDir}");
                     return Sprinting ? (Vector2.Zero, immediateDir) : (immediateDir, Vector2.Zero);
                 }
 
@@ -125,6 +129,8 @@ namespace Content.Shared.GameObjects.Components.Movement
                     walk += curDir;
                 }
 
+                // Logger.Info($"Tick: {_gameTiming.CurTick} | sprint {sprint}");
+                // Logger.Info($"Tick: {_gameTiming.CurTick} Sprinting: {Sprinting}");
                 // Logger.Info($"{curDir}{walk}{sprint}");
                 return (walk, sprint);
             }

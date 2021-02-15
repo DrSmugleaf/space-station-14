@@ -6,6 +6,7 @@ using Content.Shared.GameObjects.EntitySystems.ActionBlocker;
 using JetBrains.Annotations;
 using Robust.Shared.GameObjects;
 using Robust.Shared.IoC;
+using Robust.Shared.Log;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
 using Robust.Shared.Physics;
@@ -47,7 +48,7 @@ namespace Content.Shared.Physics.Controllers
                                      (!body.Owner.IsWeightless() ||
                                       body.Owner.TryGetComponent(out IMoverComponent? mover) && IsAroundCollider(body.Owner.Transform, mover, body));
 
-                var surfaceFriction = useMobMovement ? 1.0f : GetTileFriction(body);
+                var surfaceFriction = useMobMovement ? 4.0f : GetTileFriction(body);
                 // TODO: Make cvar
                 var frictionModifier = useMobMovement ? 40.0f : 10.0f;
                 var friction = frictionModifier * surfaceFriction;
@@ -73,6 +74,11 @@ namespace Content.Shared.Physics.Controllers
 
                 newSpeed /= speed;
                 body.LinearVelocity *= newSpeed;
+
+                if (body.Owner.Name.Contains("Hedley"))
+                {
+                    // Logger.Info("Friction LV: " + body.LinearVelocity);
+                }
             }
         }
 

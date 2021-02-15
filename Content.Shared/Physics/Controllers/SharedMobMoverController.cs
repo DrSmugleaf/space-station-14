@@ -7,11 +7,13 @@ using Content.Shared.Physics.Pull;
 using JetBrains.Annotations;
 using Robust.Shared.GameObjects;
 using Robust.Shared.IoC;
+using Robust.Shared.Log;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
 using Robust.Shared.Physics;
 using Robust.Shared.Physics.Broadphase;
 using Robust.Shared.Physics.Controllers;
+using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 
 namespace Content.Shared.Physics.Controllers
@@ -39,6 +41,7 @@ namespace Content.Shared.Physics.Controllers
 
         protected void UpdateKinematics(float frameTime, ITransformComponent transform, IMoverComponent mover, PhysicsComponent physicsComponent)
         {
+            // Logger.Info($"Sprint: {mover.CurrentSprintSpeed}");
             if (!ActionBlockerSystem.CanMove(mover.Owner)) return;
 
             // TODO: Fuck it's a hack but I want collisions working first
@@ -48,6 +51,8 @@ namespace Content.Shared.Physics.Controllers
             }
 
             var (walkDir, sprintDir) = mover.VelocityDir;
+            // Logger.Info($"tick: {IoCManager.Resolve<IGameTiming>().CurTick} | sprintDir {sprintDir}");
+            Logger.Info($"sprintDir {sprintDir}");
 
             var weightless = transform.Owner.IsWeightless();
 
@@ -67,6 +72,10 @@ namespace Content.Shared.Physics.Controllers
             // Regular movement.
             var total = (walkDir * mover.CurrentWalkSpeed + sprintDir * mover.CurrentSprintSpeed);
             var wishSpeed = total.Length;
+            if (transform.Owner.Name.Contains("Hedley"))
+            {
+                Logger.Info($"Walkdir {walkDir} | cWalkSpeed {mover.CurrentWalkSpeed} | sprintDir {sprintDir} | cSprintSpeed {mover.CurrentSprintSpeed}");
+            }
             var wishDir = wishSpeed > 0 ? total.Normalized : Vector2.Zero;
 
             // Clamp to server-max speed?
@@ -100,6 +109,11 @@ namespace Content.Shared.Physics.Controllers
             accelSpeed = MathF.Min(accelSpeed, addSpeed);
 
             body.LinearVelocity += wishDir * accelSpeed;
+
+            if (body.Owner.Name.Contains("Hedley"))
+            {
+                // Logger.Info($"Mob frameTime {frameTime} | wishdir {wishDir} | wishspeed {wishSpeed} | accel {accel}");
+            }
         }
 
         private bool IsAroundCollider(ITransformComponent transform, IMoverComponent mover,
