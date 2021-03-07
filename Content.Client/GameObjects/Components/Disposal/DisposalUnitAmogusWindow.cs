@@ -5,6 +5,7 @@ using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
+using Robust.Shared.Input;
 using Robust.Shared.IoC;
 
 namespace Content.Client.GameObjects.Components.Disposal
@@ -36,6 +37,11 @@ namespace Content.Client.GameObjects.Components.Disposal
 
         private void ImagePressed(GUIBoundKeyEventArgs obj)
         {
+            if (obj.Function != EngineKeyFunctions.UIClick)
+            {
+                return;
+            }
+
             Image.Texture = IoCManager.Resolve<IResourceCache>().GetTexture("/Textures/Constructible/disposaldown.png");
 
             OnEngaged?.Invoke();
