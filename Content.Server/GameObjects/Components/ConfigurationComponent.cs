@@ -43,7 +43,7 @@ namespace Content.Server.GameObjects.Components
         {
             foreach (var key in _keys)
             {
-                _config.Add(key, "");
+                _config[key] = "";
             }
         }
 

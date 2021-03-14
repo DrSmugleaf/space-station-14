@@ -113,7 +113,7 @@ namespace Content.Shared.Actions
             if (BehaviorType != BehaviorType.Toggle && IconOn != SpriteSpecifier.Invalid)
             {
                 Logger.ErrorS("action", "for action {0}, iconOn was specified but behavior" +
-                                        " type was {1}. iconOn is only supported for Toggle behavior type.", Name);
+                                        " type was {1}. iconOn is only supported for Toggle behavior type.", Name, BehaviorType);
             }
 
             if (Repeat && BehaviorType != BehaviorType.TargetEntity && BehaviorType != BehaviorType.TargetPoint)

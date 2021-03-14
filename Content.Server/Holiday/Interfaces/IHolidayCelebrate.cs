@@ -1,5 +1,8 @@
+using Robust.Shared.Serialization.Manager.Attributes;
+
 namespace Content.Server.Holiday.Interfaces
 {
+    [ImplicitDataDefinitionForInheritors]
     public interface IHolidayCelebrate
     {
         /// <summary>
