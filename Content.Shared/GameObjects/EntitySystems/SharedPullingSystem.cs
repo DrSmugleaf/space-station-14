@@ -10,7 +10,6 @@ using Robust.Shared.GameObjects;
 using Robust.Shared.Input.Binding;
 using Robust.Shared.Map;
 using Robust.Shared.Physics;
-using Robust.Shared.Physics.Dynamics.Joints;
 using Robust.Shared.Players;
 
 namespace Content.Shared.GameObjects.EntitySystems
@@ -78,7 +77,7 @@ namespace Content.Shared.GameObjects.EntitySystems
                 pullable.TryStopPull();
             }
 
-            if (message.Entity.TryGetComponent(out SharedPullerComponent? puller))
+            if (message.Entity.TryGetComponent(out SharedPullerComponent puller))
             {
                 if (puller.Pulling == null) return;
 
