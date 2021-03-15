@@ -32,6 +32,11 @@ namespace Content.IntegrationTests
                 typeof(ContentIntegrationTest).Assembly
             };
 
+            if (options is ClientContentIntegrationOption {ContentBeforeIoC: { }})
+            {
+                options.SkipPool = true;
+            }
+
             options.BeforeStart += () =>
             {
                 IoCManager.Resolve<IModLoader>().SetModuleBaseCallbacks(new ClientModuleTestingCallbacks
@@ -69,6 +74,11 @@ namespace Content.IntegrationTests
                 typeof(ContentIntegrationTest).Assembly
             };
 
+            if (options is ServerContentIntegrationOption {ContentBeforeIoC: { }})
+            {
+                options.SkipPool = true;
+            }
+
             options.BeforeStart += () =>
             {
                 IoCManager.Resolve<IModLoader>().SetModuleBaseCallbacks(new ServerModuleTestingCallbacks
@@ -97,6 +107,16 @@ namespace Content.IntegrationTests
             return base.StartServer(options);
         }
 
+        protected override async Task PrepareInstance(IntegrationInstance instance)
+        {
+            await base.PrepareInstance(instance);
+
+            await instance.WaitPost(() =>
+            {
+                IoCManager.Resolve<IGameTicker>().RestartRound();
+            });
+        }
+
         protected ServerIntegrationInstance StartServerDummyTicker(ServerIntegrationOptions options = null)
         {
             options ??= new ServerIntegrationOptions();
@@ -110,6 +130,8 @@ namespace Content.IntegrationTests
                     }
                 });
             };
+
+            options.SkipPool = false;
 
             return StartServer(options);
         }
@@ -131,6 +153,12 @@ namespace Content.IntegrationTests
             StartConnectedServerDummyTickerClientPair(ClientIntegrationOptions clientOptions = null,
                 ServerIntegrationOptions serverOptions = null)
         {
+            clientOptions ??= new ClientIntegrationOptions();
+            clientOptions.SkipPool = false;
+
+            serverOptions ??= new ServerIntegrationOptions();
+            serverOptions.SkipPool = false;
+
             var client = StartClient(clientOptions);
             var server = StartServerDummyTicker(serverOptions);
 
