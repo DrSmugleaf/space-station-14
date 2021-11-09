@@ -4,8 +4,8 @@ using JetBrains.Annotations;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 
-namespace Content.Shared.Acts
-{
+namespace Content.Shared.Acts;
+
     /// <summary>
     /// This interface gives components behavior on getting destroyed.
     /// </summary>
@@ -60,14 +60,14 @@ namespace Content.Shared.Acts
                 Owner = owner
             };
 
-            var destroyActs = EntityManager.GetComponents<IDestroyAct>(owner).ToList();
+            var destroyActs = Robust.Shared.GameObjects.EntityManager.GetComponents<IDestroyAct>(owner).ToList();
 
             foreach (var destroyAct in destroyActs)
             {
                 destroyAct.OnDestroy(eventArgs);
             }
 
-            EntityManager.QueueDeleteEntity(owner);
+            Robust.Shared.GameObjects.EntityManager.QueueDeleteEntity(owner);
         }
 
         public void HandleExplosion(EntityCoordinates source, IEntity target, ExplosionSeverity severity)
@@ -92,7 +92,7 @@ namespace Content.Shared.Acts
             {
                 Owner = owner,
             };
-            var breakActs = EntityManager.GetComponents<IBreakAct>(owner).ToList();
+            var breakActs = Robust.Shared.GameObjects.EntityManager.GetComponents<IBreakAct>(owner).ToList();
             foreach (var breakAct in breakActs)
             {
                 breakAct.OnBreak(eventArgs);

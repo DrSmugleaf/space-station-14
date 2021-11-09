@@ -1,341 +1,239 @@
-using System;
 using Content.Server.Atmos.EntitySystems;
 using Content.Server.Body.Respiratory;
-using Content.Server.Explosion;
-using Content.Server.NodeContainer;
-using Content.Server.NodeContainer.Nodes;
-using Content.Server.UserInterface;
-using Content.Shared.ActionBlocker;
 using Content.Shared.Actions;
 using Content.Shared.Actions.Behaviors.Item;
-using Content.Shared.Actions.Components;
 using Content.Shared.Atmos;
 using Content.Shared.Atmos.Components;
-using Content.Shared.Audio;
-using Content.Shared.DragDrop;
-using Content.Shared.Examine;
 using Content.Shared.Interaction;
-using Content.Shared.Sound;
 using JetBrains.Annotations;
 using Robust.Server.GameObjects;
 using Robust.Server.Player;
 using Robust.Shared.Audio;
-using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Localization;
 using Robust.Shared.Player;
 using Robust.Shared.Serialization.Manager.Attributes;
-using Robust.Shared.Utility;
-using Robust.Shared.ViewVariables;
+
+S
+d.Utility;
+using RobShared.ViewVariables;
 
 namespace Content.Server.Atmos.Components
 {
-    [RegisterComponent]
+ RegisterComponent]
     [ComponentReference(typeof(IActivate))]
 #pragma warning disable 618
-    public class GasTankComponent : Component, IExamine, IGasMixtureHolder, IUse, IDropped, IActivate
+    public class GasTankComponent :po    xamine, IGasMixtureHolder, IUse, IDropped,     e
 #pragma warning restore 618
     {
-        public override string Name => "GasTank";
+        p    erride string Name => "GasTank";
 
-        private const float MaxExplosionRange = 14f;
-        private const float DefaultOutputPressure = Atmospherics.OneAtmosphere;
+        private const float MaxExplosio     14f;
+        private const f    aultOutputPressure = Atmospherics.OneAtmosphere;
 
-        private int _integrity = 3;
-
-        [ComponentDependency] private readonly ItemActionsComponent? _itemActions = null;
+        private int _integrity =         [ComponentDependency] private readonly ItemActionsCompone    mActions = null;
 
         [ViewVariables] private BoundUserInterface? _userInterface;
 
-        [DataField("ruptureSound")] private SoundSpecifier _ruptureSound = new SoundPathSpecifier("Audio/Effects/spray.ogg");
-
-        [DataField("air")] [ViewVariables] public GasMixture Air { get; set; } = new();
+        [DataField("ruptureSound    ate SoundSpecifier _ruptureSound = new SoundPathSpecifier("Audio/Effects/spray.og          [DataFie    )] [ViewVariables] public GasM    ir { get; set;     );
 
         /// <summary>
-        ///     Distributed pressure.
+            Distributed     .
         /// </summary>
         [DataField("outputPressure")]
-        [ViewVariables]
-        public float OutputPressure { get; private set; } = DefaultOutputPressure;
-
-        /// <summary>
-        ///     Tank is connected to internals.
-        /// </summary>
+        [View    s]
+        pub    t OutputPressure { get; private set; } =    OutputPressure;      /// <summary>
+        ///     Tank is connected to in    
+        /// <    >
         [ViewVariables] public bool IsConnected { get; set; }
 
-        /// <summary>
-        ///     Represents that tank is functional and can be connected to internals.
+        /// <    
+        ///       ents that tank is functional and can be connected to internals      /// </summar       public bool IsFunctional => GetInternalsComp    != null;
+
+         summary>
+        ///     Pressur    ch tanks start leaking.
         /// </summary>
-        public bool IsFunctional => GetInternalsComponent() != null;
+        [DataField("tankLeakPressure"       public floa    akPressure { get; set; }     = 30 * Atmospherics.OneAtmosphere;
+
+        <summary>
+            Pressure at which tank spills a    nts into atmosphere.
+        /// </summary>
+        [DataField("tankRupturePressure"       public floa    pturePressure { get; set; }     Atmospherics.On    ere;
 
         /// <summary>
-        ///     Pressure at which tanks start leaking.
+            Base 3x3 explosion.
         /// </summary>
-        [DataField("tankLeakPressure")]
-        public float TankLeakPressure { get; set; }     = 30 * Atmospherics.OneAtmosphere;
-
-        /// <summary>
-        ///     Pressure at which tank spills all contents into atmosphere.
+        [DataField("tankFragmentPressure"       public floa    agmentPressure { get; set; } = 50 * Atmospherics.OneAtmosphere;
+     /// <summary>
+    ///     Increases explosion for e    e kPa above threshold.
         /// </summary>
-        [DataField("tankRupturePressure")]
-        public float TankRupturePressure { get; set; }  = 40 * Atmospherics.OneAtmosphere;
-
-        /// <summary>
-        ///     Base 3x3 explosion.
-        /// </summary>
-        [DataField("tankFragmentPressure")]
-        public float TankFragmentPressure { get; set; } = 50 * Atmospherics.OneAtmosphere;
-
-        /// <summary>
-        ///     Increases explosion for each scale kPa above threshold.
-        /// </summary>
-        [DataField("tankFragmentScale")]
-        public float TankFragmentScale { get; set; }    = 10 * Atmospherics.OneAtmosphere;
-
-        protected override void Initialize()
+        [DataField("tankFragmentScale"       public float TankFragmentScale { g     }        tmospherics.OneAtmo             protected override void Initialize()
         {
-            base.Initialize();
-            _userInterface = Owner.GetUIOrNull(SharedGasTankUiKey.Key);
+                tialize();
+            _user        Ow            SharedGasTankUiKey.Key);
             if (_userInterface != null)
+                        nterface.OnReceiveMessage += UserInterfaceOnOnRece    ge          }
+        }
+
+        public v        rface(IPlayerSession sessio                 _userInterface?.Open(session);
+            UpdateUserInterfac    
+               public void Examine(FormattedMessage message, bool inDetailsRange)
+        {
+            message.Ad        GetString("comp-g        in             Math.Round(Air?.Pressu                     if (IsConnected)
             {
-                _userInterface.OnReceiveMessage += UserInterfaceOnOnReceiveMessage;
-            }
-        }
-
-        public void OpenInterface(IPlayerSession session)
-        {
-            _userInterface?.Open(session);
-            UpdateUserInterface(true);
-        }
-
-        public void Examine(FormattedMessage message, bool inDetailsRange)
-        {
-            message.AddMarkup(Loc.GetString("comp-gas-tank-examine", ("pressure", Math.Round(Air?.Pressure ?? 0))));
-            if (IsConnected)
-            {
-                message.AddText("\n");
-                message.AddMarkup(Loc.GetString("comp-gas-tank-connected"));
-            }
-        }
-
-        protected override void Shutdown()
-        {
+                messa        \n            message.AddMarkup(Loc.GetString("c    ta        "));
+                    
+        protected override    utd          {
             base.Shutdown();
-            DisconnectFromInternals();
+          sc        ternals();
         }
 
-        public GasMixture? RemoveAir(float amount)
-        {
-            var gas = Air?.Remove(amount);
-            CheckStatus();
-            return gas;
+        p        ture? RemoveAir        t)
+        {           s = Air?.Remove(amount);
+            CheckStatus               gas;
         }
 
-        public GasMixture RemoveAirVolume(float volume)
-        {
-            if (Air == null)
-                return new GasMixture(volume);
-
-            var tankPressure = Air.Pressure;
-            if (tankPressure < OutputPressure)
-            {
-                OutputPressure = tankPressure;
+            asMixture RemoveAirVolume(float             {
+            if (Air == null              return new GasMixture(volume)                      e = Air.Pressure;
+            i            < OutputPressure)
+                        tputPressure = tankPressure;
                 UpdateUserInterface();
-            }
+            }          var molesNeeded = OutputPressure         Atmospherics.R *             ;
 
-            var molesNeeded = OutputPressure * volume / (Atmospherics.R * Air.Temperature);
-
-            var air = RemoveAir(molesNeeded);
-
-            if (air != null)
-                air.Volume = volume;
-            else
-                return new GasMixture(volume);
-
-            return air;
+            var ai        r(mol                    if (air != null)
+               .Volume = vo           lse
+                return new GasMixture(volume);              ir;
         }
 
         bool IUse.UseEntity(UseEntityEventArgs eventArgs)
-        {
-            if (!eventArgs.User.TryGetComponent(out ActorComponent? actor)) return false;
+                  if (!eventArgs.User.TryGetCompo        orComponent?     ret    e;
             OpenInterface(actor.PlayerSession);
-            return true;
+                
         }
 
-        void IActivate.Activate(ActivateEventArgs eventArgs)
-        {
-            if (!eventArgs.User.TryGetComponent(out ActorComponent? actor)) return;
-            OpenInterface(actor.PlayerSession);
+        void IActivate.Activate(ActivateEventArgs eventArgs)                   if (!eventArgs.User.TryGe    nt(    rComponent? actor)) return;
+         pe        ctor.PlayerSession);
         }
 
-        public void ConnectToInternals()
+        pu        nnectToInternals()
         {
-            if (IsConnected || !IsFunctional) return;
-            var internals = GetInternalsComponent();
-            if (internals == null) return;
-            IsConnected = internals.TryConnectTank(Owner);
-            UpdateUserInterface();
-        }
+                    ted || !IsFunctional) return;
+         ar internals = GetInternalsComponent();
+               ernals == null) return;           ected = internals.TryConnectTank(Owner);
+            Update    rf           }
 
-        public void DisconnectFromInternals(IEntity? owner = null)
+        public void         omInternals(IEntity?         )
         {
-            if (!IsConnected) return;
-            IsConnected = false;
-            GetInternalsComponent(owner)?.DisconnectTank();
-            UpdateUserInterface();
-        }
+            if (!IsConnected) return          IsConnected = false;
+           rnalsComponent(owner)?.DisconnectTank();
+            UpdateU    fa          }
 
-        public void UpdateUserInterface(bool initialUpdate = false)
-        {
-            var internals = GetInternalsComponent();
-            _userInterface?.SetState(
-                new GasTankBoundUserInterfaceState
+        public void UpdateUserInterf        tialUpdate = false)
+                  var internals = GetInternalsCompone                              tate(
+                new GasTankBo                e
                 {
-                    TankPressure = Air?.Pressure ?? 0,
-                    OutputPressure = initialUpdate ? OutputPressure : (float?) null,
-                    InternalsConnected = IsConnected,
-                    CanConnectInternals = IsFunctional && internals != null
+                    TankPressure = Air?.Press                          OutputPressure = initial                ure : (float?) null,
+                    InternalsConnec            d,
+                CanConnectInternals = IsF         internals != null
                 });
 
             if (internals == null) return;
-            _itemActions?.GrantOrUpdate(ItemActionType.ToggleInternals, IsFunctional, IsConnected);
+         ite    ?.GrantOrUpdate(ItemActionType.ToggleInternals, IsFunctional, IsConnected);
         }
-
-        private void UserInterfaceOnOnReceiveMessage(ServerBoundUserInterfaceMessage message)
+     p        UserInterfaceOnOnReceiveM        rB            eMessage message)
         {
-            switch (message.Message)
+                        Message)
             {
-                case GasTankSetPressureMessage msg:
-                    OutputPressure = msg.Pressure;
-                    break;
-                case GasTankToggleInternalsMessage _:
-                    ToggleInternals();
-                    break;
+                        SetPres            
+                    OutputPressure =                               break                se GasT        er    age                    ToggleInternals(               break;
             }
         }
 
-        internal void ToggleInternals()
+        int        oggleInternals()
         {
-            var user = GetInternalsComponent()?.Owner;
-
-            if (user == null || !EntitySystem.Get<ActionBlockerSystem>().CanUse(user.Uid))
-                return;
-
-            if (IsConnected)
-            {
-                DisconnectFromInternals();
+            var user = GetInternalsComponent()?.Owne            if (user         EntitySystem.Get<        rS            user.Uid))
+                                 if         )
+         
+                Disco    mIn    );
                 return;
             }
 
-            ConnectToInternals();
-        }
-
-        private InternalsComponent? GetInternalsComponent(IEntity? owner = null)
+            ConnectToInternals(              private InternalsComponent? GetI        onent(IEntity? owner = null)
         {
-            if (Owner.Deleted) return null;
-            if (owner != null) return owner.GetComponentOrNull<InternalsComponent>();
-            return Owner.TryGetContainer(out var container)
-                ? container.Owner.GetComponentOrNull<InternalsComponent>()
-                : null;
+            if (Owner.Deleted) retu                 if (owner != null) return owner.GetComp            rnalsComponent>();
+            return Owner.TryGetContainer            er)
+               iner.Owner.GetComponentOrNull<InternalsC    >(              : null;
         }
 
-        public void AssumeAir(GasMixture giver)
+        public void AssumeAir(G        ver)
         {
-            EntitySystem.Get<AtmosphereSystem>().Merge(Air, giver);
-            CheckStatus();
-        }
+           ystem.Get<AtmosphereSystem    e(        
+            Chec               }
 
-        public void CheckStatus()
+           void CheckStatus()
         {
             if (Air == null)
-                return;
+            return;
 
-            var atmosphereSystem = EntitySystem.Get<AtmosphereSystem>();
+            var atmos        = EntitySystem.Get<AtmosphereSystem>(                       Air.Pressure;
 
-            var pressure = Air.Pressure;
-
-            if (pressure > TankFragmentPressure)
-            {
-                // Give the gas a chance to build up more pressure.
-                for (var i = 0; i < 3; i++)
-                {
-                    atmosphereSystem.React(Air, this);
+            if (pressure > TankFragm                     {
+                /             c                re pressure.
+                for (v             i+               {
+                                .React(Air, this);
                 }
 
-                pressure = Air.Pressure;
-                var range = (pressure - TankFragmentPressure) / TankFragmentScale;
+                pressure = Air                       var range = (pressure -            ssure) / TankFragmentScale;
 
-                // Let's cap the explosion, yeah?
-                if (range > MaxExplosionRange)
-                {
+               L                on, yeah?
+                i            plo                       {
                     range = MaxExplosionRange;
                 }
 
-                Owner.SpawnExplosion((int) (range * 0.25f), (int) (range * 0.5f), (int) (range * 1.5f), 1);
+                Owner.SpawnExplosion((int) (range * 0.            ge * 0.5f), (int) (ra            
 
-                Owner.QueueDelete();
+              ner        ();
                 return;
-            }
-
-            if (pressure > TankRupturePressure)
-            {
-                if (_integrity <= 0)
+                              e > TankRupturePressu            {
+                _integrity <= 0)
                 {
-                    var environment = atmosphereSystem.GetTileMixture(Owner.Transform.Coordinates, true);
-                    if(environment != null)
-                        atmosphereSystem.Merge(environment, Air);
+                    var environment = atmosphereSys                wner.Transform.Coordinat                           if(environment != null)
+                            reSystem.Merge(environment, Air);
 
-                    SoundSystem.Play(Filter.Pvs(Owner), _ruptureSound.GetSound(), Owner.Transform.Coordinates, AudioHelpers.WithVariation(0.125f));
-
-                    Owner.QueueDelete();
-                    return;
-                }
-
-                _integrity--;
+                    SoundSystem.Play(Filter.Pvs(Owner), _ruptureSound.GetSound(), Owner.Transf                ioHelpers.WithVariati                                    eDe                        re                  }
+                   --;
                 return;
-            }
-
-            if (pressure > TankLeakPressure)
-            {
-                if (_integrity <= 0)
+                           sure > TankLeakPressu            {
+                _integrity <= 0)
                 {
-                    var environment = atmosphereSystem.GetTileMixture(Owner.Transform.Coordinates, true);
-                    if (environment == null)
+                    var environment = atmosphereSys                wner.Transform.Coordinate                          if                 )
                         return;
 
-                    var leakedGas = Air.RemoveRatio(0.25f);
-                    atmosphereSystem.Merge(environment, leakedGas);
-                }
-                else
-                {
-                    _integrity--;
-                }
+                     eakedGas = Air.RemoveRatio(0.25f);
+                         eS            ronme                                          el                                 _i                    }
 
-                return;
-            }
+                                }
 
-            if (_integrity < 3)
+           (_i     < 3)
                 _integrity++;
         }
 
-        void IDropped.Dropped(DroppedEventArgs eventArgs)
-        {
-            DisconnectFromInternals(eventArgs.User);
-        }
+       d         pped(DroppedEventArgs eventArgs)
+              DisectFromInternals(tArgs.User);
+    }
     }
 
     [UsedImplicitly]
     [DataDefinition]
-    public class ToggleInternalsAction : IToggleItemAction
+    ic    oggleInternalsAction : IToggleItemAction
     {
-        public bool DoToggleAction(ToggleItemActionEventArgs args)
+        publ    Do        (ToggleItemActionEventArgs args)
         {
-            if (!args.Item.TryGetComponent<GasTankComponent>(out var gasTankComponent)) return false;
+            if (!args.Item.TryGetComponent<GasT        >(out var gas        t)) return false;
             // no change
-            if (gasTankComponent.IsConnected == args.ToggledOn) return false;
-            gasTankComponent.ToggleInternals();
-            // did we successfully toggle to the desired status?
-            return gasTankComponent.IsConnected == args.ToggledOn;
+            if (gasTank        Connected == args.ToggledOn) return                gasTankComponent.ToggleInternals();
+                  successfully toggle to the desired status?
+                asConent.IsConnected == args.ToggledOn;
         }
     }
 }

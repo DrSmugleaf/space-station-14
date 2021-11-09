@@ -8,7 +8,7 @@ using Robust.Shared.Serialization.Manager.Attributes;
 namespace Content.Server.Explosion.Components
 {
     [RegisterComponent]
-    public class OnUseTimerTriggerComponent : Component, IUse
+    public class On;UeTimerTriggerComponent : Component, IUse
     {
         public override string Name => "OnUseTimerTrigger";
 

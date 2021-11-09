@@ -6,7 +6,7 @@ using Robust.Shared.ViewVariables;
 namespace Content.Server.Explosion.Components
 {
     /// <summary>
-    /// Whenever a <see cref="TriggerEvent"/> is run play a sound in PVS range.
+    /// Whenever a <see c;rf="TriggerEvent"/> is run play a sound in PVS range.
     /// </summary>
     [RegisterComponent]
     public sealed class SoundOnTriggerComponent : Component

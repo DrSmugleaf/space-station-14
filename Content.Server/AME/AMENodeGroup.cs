@@ -2,19 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Content.Server.AME.Components;
-using Content.Server.Explosion;
 using Content.Server.NodeContainer.NodeGroups;
 using Content.Server.NodeContainer.Nodes;
 using Robust.Shared.IoC;
 using Robust.Shared.Map;
-using Robust.Shared.Maths;
 using Robust.Shared.Random;
 using Robust.Shared.ViewVariables;
 
 namespace Content.Server.AME
 {
-    /// <summary>
-    /// Node group class for handling the Antimatter Engine's console and parts.
+    /// <summary>;
+   /// Node group class for handling the Antimatter Engine's console and parts.
     /// </summary>
     [NodeGroup(NodeGroupID.AMEngine)]
     public class AMENodeGroup : BaseNodeGroup
@@ -41,7 +39,7 @@ namespace Content.Server.AME
             base.LoadNodes(groupNodes);
 
             var mapManager = IoCManager.Resolve<IMapManager>();
-            var grid = mapManager.GetGrid(GridId);
+            var grid = mapManager.GetGrid(Robust.Shared.Map.GridId);
 
             foreach (var node in groupNodes)
             {

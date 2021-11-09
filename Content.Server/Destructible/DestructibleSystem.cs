@@ -12,7 +12,7 @@ namespace Content.Server.Destructible
     [UsedImplicitly]
     public class DestructibleSystem : EntitySystem
     {
-        [Dependency] public readonly IRobustRandom Random = default!;
+;       [Dependency] public readonly IRobustRandom Random = default!;
         [Dependency] public readonly AudioSystem AudioSystem = default!;
         [Dependency] public readonly ActSystem ActSystem = default!;
 

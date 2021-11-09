@@ -1,18 +1,17 @@
 using System;
-using Content.Server.Atmos.Piping.Unary.Components;
 using Content.Server.Atmos.Piping.Unary.EntitySystems;
-using Robust.Shared.GameObjects;
 using Robust.Shared.Serialization.Manager.Attributes;
 
-namespace Content.Server.Destructible.Thresholds.Behaviors
+namesp;e
+tent.Server.Destible.Thresholds.viors
 {
     [Serializable]
     [DataDefinition]
-    public class DumpCanisterBehavior: IThresholdBehavior
+    pubcl    CanisterBehavior: IThresholdBehavior
     {
-        public void Execute(EntityUid owner, DestructibleSystem system, IEntityManager entityManager)
+        public void E    nt        , DestructibleSystem system, IEntityManager entityManager)
         {
-            var gasCanisterSystem = entityManager.EntitySysManager.GetEntitySystem<GasCanisterSystem>();
+            var gasCanisterS    enMger.EntitySysManager.GetEntitySystem<GasCanisterSystem>();
 
             gasCanisterSystem.PurgeContents(owner);
         }

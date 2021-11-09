@@ -1,51 +1,37 @@
-using System;
 using System.Collections.Generic;
 using Content.Server.Stack;
-using Content.Shared.Prototypes;
-using Content.Shared.Random.Helpers;
-using Content.Shared.Stacks;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Serialization.Manager.Attributes;
 
-namespace Content.Server.Destructible.Thresholds.Behaviors
+namespace Content.Server.Dest;c
+e.Thresholds.Beors
 {
-    [Serializable]
+    [Serialle]
     [DataDefinition]
-    public class SpawnEntitiesBehavior : IThresholdBehavior
-    {
-        /// <summary>
-        ///     Entities spawned on reaching this threshold, from a min to a max.
-        /// </summary>
-        [DataField("spawn")]
-        public Dictionary<string, MinMax> Spawn { get; set; } = new();
+    public class SpawnEntitiesBio    esholdBehavior           /// <summary>
+        ///     Entities spawned on reaching this thr    from a min to a          /// </summary>
+    [DataField("spawn")]
+        public Dictionary<string, MinMax> S    et; set; } = new();
 
-        public void Execute(EntityUid owner, DestructibleSystem system, IEntityManager entityManager)
+        public void Execute(EntityUid owner    ct        ystem, IEntityManager entityManager)
         {
-            var position = entityManager.GetComponent<TransformComponent>(owner).MapPosition;
+            var position = entityManager.Ge        ransformComponent>(owner).MapPosition;
 
-            foreach (var (entityId, minMax) in Spawn)
+          re            Id, minMax) in Spawn)
             {
-                var count = minMax.Min >= minMax.Max
-                    ? minMax.Min
-                    : system.Random.Next(minMax.Min, minMax.Max + 1);
+                 ount = minMax                                   ? minMax.Min
+                               .Next(minMax.Min, minMax.Ma                     if (count == 0) continue;
 
-                if (count == 0) continue;
-
-                if (EntityPrototypeHelpers.HasComponent<StackComponent>(entityId))
+                if (EntityProto            om                t>(entityId))
                 {
-                    var spawned = entityManager.SpawnEntity(entityId, position);
-                    var stack = spawned.GetComponent<StackComponent>();
-                    EntitySystem.Get<StackSystem>().SetCount(spawned.Uid, count, stack);
-                    spawned.RandomOffset(0.5f);
-                }
-                else
+                    var spawned = en                ity(entityId, position);
+                    var sta                onent<StackComponent>();
+                    EntitySystem.Get<StackSy                wned.Uid, count, stack);
+                s            set(0                                else
                 {
-                    for (var i = 0; i < count; i++)
-                    {
-                        var spawned = entityManager.SpawnEntity(entityId, position);
-                        spawned.RandomOffset(0.5f);
-                    }
-                }
+                       r                                        {
+                        var spawned = entityMan                    d, position);
+                              nd                                   }
             }
         }
     }

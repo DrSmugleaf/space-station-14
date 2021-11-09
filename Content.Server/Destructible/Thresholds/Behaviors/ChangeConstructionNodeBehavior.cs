@@ -1,24 +1,20 @@
-﻿using System;
-using Content.Server.Construction;
-using Content.Server.Construction.Components;
-using Robust.Shared.GameObjects;
+﻿using Robust.Shared.GameObjects;
 using Robust.Shared.Serialization.Manager.Attributes;
 
-namespace Content.Server.Destructible.Thresholds.Behaviors
+namespace Content.Serve;D
+uctible.ThreshoBehaviors
 {
-    [Serializable]
+    [alizable]
     [DataDefinition]
-    public class ChangeConstructionNodeBehavior : IThresholdBehavior
-    {
-        [DataField("node")]
-        public string Node { get; private set; } = string.Empty;
+    public class ChangeConstructioeB    : IThresholdBehavior           [DataField("node")]
+        public string Node { ge    te set; } = string.Empty;
 
-        public void Execute(EntityUid owner, DestructibleSystem system, IEntityManager entityManager)
+        public void Execute(EntityUid    De        stem system, IEntityManager entityManager)
         {
-            if (string.IsNullOrEmpty(Node) || !entityManager.TryGetComponent(owner, out ConstructionComponent? construction))
+            if (string.IsNullOrEmpty(Node) || !entityManager.TryGetC            out Const        nent? construction))
                 return;
 
-            EntitySystem.Get<ConstructionSystem>().ChangeNode(owner, null, Node, true, construction);
+            EntitySystem.Get<Co    one).ChangeNode(owner, null, Node, true, construction);
         }
     }
 }

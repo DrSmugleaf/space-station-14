@@ -1,11 +1,10 @@
-using Robust.Shared.Serialization;
 using System;
+using Robust.Shared.Serialization;
 
-namespace Content.Shared.Traitor.Uplink
+namespace Content.Shared.Traitor.Uplink;
+
+[Serializable, NetSerializable]
+public enum UplinkUiKey : byte
 {
-    [Serializable, NetSerializable]
-    public enum UplinkUiKey : byte
-    {
-        Key
-    }
+    Key
 }

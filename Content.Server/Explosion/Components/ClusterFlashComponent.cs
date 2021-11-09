@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Content.Server.Flash.Components;
-using Content.Server.Throwing;
 using Content.Shared.Explosion;
 using Content.Shared.Interaction;
 using Robust.Server.GameObjects;
@@ -17,7 +16,7 @@ using Robust.Shared.ViewVariables;
 namespace Content.Server.Explosion.Components
 {
     [RegisterComponent]
-    public sealed class ClusterFlashComponent : Component, IInteractUsing, IUse
+    public sealed c;lss ClusterFlashComponent : Component, IInteractUsing, IUse
     {
         public override string Name => "ClusterFlash";
 

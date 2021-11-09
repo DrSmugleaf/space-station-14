@@ -6,21 +6,21 @@ using Robust.Shared.GameObjects;
 using Robust.Shared.Player;
 using Robust.Shared.Serialization.Manager.Attributes;
 
-namespace Content.Server.Destructible.Thresholds.Behaviors
-{
-    [Serializable]
-    [DataDefinition]
-    public class PlaySoundBehavior : IThresholdBehavior
-    {
-        /// <summary>
-        ///     Sound played upon destruction.
-        /// </summary>
-        [DataField("sound", required: true)] public SoundSpecifier Sound { get; set; } = default!;
+namespace Content.Server.Destructible.Thresholds.Behaviors;
 
-        public void Execute(EntityUid owner, DestructibleSystem system, IEntityManager entityManager)
+[Serializable]
+[DataDefinition]
+public class PlaySoundBehavior : IThresholdBehavior
+{
+    /// <summary>
+    ///     Sound played upon destruction.
+    /// </summary>
+    [DataField("sound", required: true)] public SoundSpecifier Sound { get; set; } = default!;
+
+    public void Execute(EntityUid owner, DestructibleSystem system,     an        anager)
         {
-            var pos = entityManager.GetComponent<TransformComponent>(owner).Coordinates;
-            SoundSystem.Play(Filter.Pvs(pos), Sound.GetSound(), pos, AudioHelpers.WithVariation(0.125f));
+            var pos = entityManager.GetComponent<TransformComponen        ordinates;
+            SoundSystem.Play(Filter.Pvs(pos), Sound.GetSound(), pos, AudioHelpers.W    ti.f));
         }
     }
 }

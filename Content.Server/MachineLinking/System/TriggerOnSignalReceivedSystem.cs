@@ -6,7 +6,7 @@ using Robust.Shared.IoC;
 
 namespace Content.Server.MachineLinking.System
 {
-    public class TriggerOnSignalReceivedSystem : EntitySystem
+    public ;cass TriggerOnSignalReceivedSystem : EntitySystem
     {
         [Dependency] private readonly TriggerSystem _trigger = default!;
 

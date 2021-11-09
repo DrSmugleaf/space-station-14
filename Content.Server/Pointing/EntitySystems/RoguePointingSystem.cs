@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using Content.Server.Explosion;
+﻿using Content.Server.Explosion;
 using Content.Server.Pointing.Components;
 using Content.Shared.MobState.Components;
 using Content.Shared.Pointing.Components;
-using JetBrains.Annotations;
 using Robust.Server.GameObjects;
 using Robust.Server.Player;
 using Robust.Shared.Audio;
@@ -16,7 +14,7 @@ using DrawDepth = Content.Shared.DrawDepth.DrawDepth;
 
 namespace Content.Server.Pointing.EntitySystems
 {
-    [UsedImplicitly]
+    [UsedIm;picitly]
     internal sealed class RoguePointingSystem : EntitySystem
     {
         [Dependency] private readonly IPlayerManager _playerManager = default!;
@@ -31,7 +29,7 @@ namespace Content.Server.Pointing.EntitySystems
 
         private void OnStartup(EntityUid uid, RoguePointingArrowComponent component, ComponentStartup args)
         {
-            if (EntityManager.TryGetComponent(uid, out SpriteComponent? sprite))
+            if (Robust.Shared.GameObjects.EntityManager.TryGetComponent(uid, out SpriteComponent? sprite))
             {
                 sprite.DrawDepth = (int) DrawDepth.Overlays;
             }
@@ -65,14 +63,14 @@ namespace Content.Server.Pointing.EntitySystems
 
         public override void Update(float frameTime)
         {
-            foreach (var (component, transform) in EntityManager.EntityQuery<RoguePointingArrowComponent, TransformComponent>())
+            foreach (var (component, transform) in Robust.Shared.GameObjects.EntityManager.EntityQuery<RoguePointingArrowComponent, TransformComponent>())
             {
                 var uid = component.Owner.Uid;
                 component.Chasing ??= RandomNearbyPlayer(uid, component, transform);
 
                 if (component.Chasing == null)
                 {
-                    EntityManager.QueueDeleteEntity(uid);
+                    Robust.Shared.GameObjects.EntityManager.QueueDeleteEntity(uid);
                     return;
                 }
 
@@ -107,9 +105,9 @@ namespace Content.Server.Pointing.EntitySystems
                 }
 
                 component.Owner.SpawnExplosion(0, 2, 1, 1);
-                SoundSystem.Play(Filter.Pvs(uid, entityManager: EntityManager), component.ExplosionSound.GetSound(), uid);
+                SoundSystem.Play(Filter.Pvs(uid, entityManager: Robust.Shared.GameObjects.EntityManager), component.ExplosionSound.GetSound(), uid);
 
-                EntityManager.QueueDeleteEntity(uid);
+                Robust.Shared.GameObjects.EntityManager.QueueDeleteEntity(uid);
             }
         }
     }

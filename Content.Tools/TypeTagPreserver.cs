@@ -1,25 +1,24 @@
 ﻿using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 
-namespace Content.Tools
+namespace Content.Tools;
+
+public class TypeTagPreserver : IEmitter
 {
-    public class TypeTagPreserver : IEmitter
+    public TypeTagPreserver(IEmitter emitter)
     {
-        public TypeTagPreserver(IEmitter emitter)
+        Emitter = emitter;
+    }
+
+    private IEmitter Emitter { get; }
+
+    public void Emit(ParsingEvent @event)
+    {
+        if (@event is MappingStart mapping)
         {
-           Emitter = emitter;
+            @event = new MappingStart(mapping.Anchor, mapping.Tag, false, mapping.Style, mapping.Start, mapping.End);
         }
 
-        private IEmitter Emitter { get; }
-
-        public void Emit(ParsingEvent @event)
-        {
-            if (@event is MappingStart mapping)
-            {
-                @event = new MappingStart(mapping.Anchor, mapping.Tag, false, mapping.Style, mapping.Start, mapping.End);
-            }
-
-            Emitter.Emit(@event);
-        }
+        Emitter.Emit(@event);
     }
 }

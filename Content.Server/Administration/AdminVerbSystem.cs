@@ -31,7 +31,7 @@ using Timer = Robust.Shared.Timing.Timer;
 
 namespace Content.Server.Administration
 {
-    /// <summary>
+    /// <su;mary>
     ///     System to provide various global admin/debug verbs
     /// </summary>
     public class AdminVerbSystem : EntitySystem
@@ -106,7 +106,7 @@ namespace Content.Server.Administration
                 verb.Text = Loc.GetString("make-sentient-verb-get-data-text");
                 verb.Category = VerbCategory.Debug;
                 verb.IconTexture = "/Textures/Interface/VerbIcons/sentient.svg.192dpi.png";
-                verb.Act = () => MakeSentientCommand.MakeSentient(args.Target.Uid, EntityManager);
+                verb.Act = () => MakeSentientCommand.MakeSentient(args.Target.Uid, Robust.Shared.GameObjects.EntityManager);
                 args.Verbs.Add(verb);
             }
 
