@@ -36,7 +36,7 @@ namespace Content.MapRenderer
 
                 Array.Sort(mapIds);
 
-                Console.WriteLine("Didn't specify any maps to paint, select one, multiple separated by commas or \"all\":");
+                Console.WriteLine("Didn't specify any maps to paint, select one numerical id, multiple ones separated by commas or \"all\":");
                 Console.WriteLine(string.Join('\n', mapIds.Select((id, i) => $"({i}): {id}")));
                 var input = Console.ReadLine();
                 if (input == null)
