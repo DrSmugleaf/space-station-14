@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,8 +21,6 @@ namespace Content.MapRenderer
         private const string NoMapsChosenMessage = "No maps were chosen";
         private static readonly Func<string, string> ChosenMapIdNotIntMessage = id => $"The chosen id is not a valid integer: {id}";
         private static readonly Func<int, string> NoMapFoundWithIdMessage = id => $"No map found with chosen id: {id}";
-
-        private static readonly MapPainter MapPainter = new();
 
         internal static async Task Main(string[] args)
         {
@@ -52,7 +51,11 @@ namespace Content.MapRenderer
                 }
                 else
                 {
-                    var inputArray = input.Split(',');
+                    var inputArray = input
+                        .Split(',')
+                        .Distinct()
+                        .ToArray();
+
                     if (inputArray.Length == 0)
                     {
                         Console.WriteLine(NoMapsChosenMessage);
@@ -106,65 +109,77 @@ namespace Content.MapRenderer
         {
             Console.WriteLine($"Creating images for {arguments.Maps.Count} maps");
 
-            var mapNames = new List<string>();
+            var mapNames = new ConcurrentBag<string>();
+            var tasks = new List<Func<ValueTask>>();
             foreach (var map in arguments.Maps)
             {
-                Console.WriteLine($"Painting map {map}");
-
-                var mapViewerData = new MapViewerData
+                tasks.Add(async () =>
                 {
-                    Id = map,
-                    Name = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(map)
-                };
+                    Console.WriteLine($"Painting map {map}");
 
-                mapViewerData.ParallaxLayers.Add(LayerGroup.DefaultParallax());
-                var directory = Path.Combine(arguments.OutputPath, map);
-                Directory.CreateDirectory(directory);
+                    var mapViewerData = new MapViewerData
+                    {
+                        Id = map,
+                        Name = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(map)
+                    };
 
-                var i = 0;
-                await foreach (var renderedGrid in MapPainter.Paint(map))
-                {
-                    var grid = renderedGrid.Image;
+                    mapViewerData.ParallaxLayers.Add(LayerGroup.DefaultParallax());
+                    var directory = Path.Combine(arguments.OutputPath, map);
                     Directory.CreateDirectory(directory);
 
-                    var fileName = Path.GetFileNameWithoutExtension(map);
-                    var savePath = $"{directory}{Path.DirectorySeparatorChar}{fileName}-{i}.{arguments.Format.ToString()}";
-
-                    Console.WriteLine($"Writing grid of size {grid.Width}x{grid.Height} to {savePath}");
-
-                    switch (arguments.Format)
+                    var painter = new MapPainter();
+                    var i = 0;
+                    await foreach (var renderedGrid in painter.Paint(map))
                     {
-                        case OutputFormat.webp:
-                            var encoder = new WebpEncoder
-                            {
-                                Method = WebpEncodingMethod.BestQuality,
-                                FileFormat = WebpFileFormatType.Lossless,
-                                TransparentColorMode = WebpTransparentColorMode.Preserve
-                            };
+                        var grid = renderedGrid.Image;
+                        Directory.CreateDirectory(directory);
 
-                            await grid.SaveAsync(savePath, encoder);
-                            break;
+                        var fileName = Path.GetFileNameWithoutExtension(map);
+                        var savePath =
+                            $"{directory}{Path.DirectorySeparatorChar}{fileName}-{i}.{arguments.Format.ToString()}";
 
-                        default:
-                        case OutputFormat.png:
-                            await grid.SaveAsPngAsync(savePath);
-                            break;
+                        Console.WriteLine($"Writing grid of size {grid.Width}x{grid.Height} to {savePath}");
+
+                        switch (arguments.Format)
+                        {
+                            case OutputFormat.webp:
+                                var encoder = new WebpEncoder
+                                {
+                                    Method = WebpEncodingMethod.BestQuality,
+                                    FileFormat = WebpFileFormatType.Lossless,
+                                    TransparentColorMode = WebpTransparentColorMode.Preserve
+                                };
+
+                                await grid.SaveAsync(savePath, encoder);
+                                break;
+
+                            default:
+                            case OutputFormat.png:
+                                await grid.SaveAsPngAsync(savePath);
+                                break;
+                        }
+
+                        grid.Dispose();
+
+                        mapViewerData.Grids.Add(new GridLayer(renderedGrid,
+                            Path.Combine(map, Path.GetFileName(savePath))));
+
+                        mapNames.Add(fileName);
+                        i++;
                     }
 
-                    grid.Dispose();
-
-                    mapViewerData.Grids.Add(new GridLayer(renderedGrid,  Path.Combine(map, Path.GetFileName(savePath))));
-
-                    mapNames.Add(fileName);
-                    i++;
-                }
-
-                if (arguments.ExportViewerJson)
-                {
-                    var json = JsonConvert.SerializeObject(mapViewerData);
-                    await File.WriteAllTextAsync(Path.Combine(arguments.OutputPath, map, "map.json"), json);
-                }
+                    if (arguments.ExportViewerJson)
+                    {
+                        var json = JsonConvert.SerializeObject(mapViewerData);
+                        await File.WriteAllTextAsync(Path.Combine(arguments.OutputPath, map, "map.json"), json);
+                    }
+                });
             }
+
+            await Parallel.ForEachAsync(tasks, new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Math.Min(Environment.ProcessorCount, 4)
+            }, (func, _) => func());
 
             var mapNamesString = $"[{string.Join(',', mapNames.Select(s => $"\"{s}\""))}]";
             Console.WriteLine($@"::set-output name=map_names::{mapNamesString}");
