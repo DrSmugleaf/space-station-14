@@ -2203,6 +2203,6 @@ namespace Content.Shared.CCVar
         ///     explaining the difference between each.
         /// </summary>
         public static readonly CVarDef<bool> GuidebookShowEditorSpeciesButton =
-            CVarDef.Create("guidebook.show_editor_species_button", false, CVar.SERVER | CVar.REPLICATED);
+            CVarDef.Create("guidebook.show_editor_species_button", true, CVar.SERVER | CVar.REPLICATED);
     }
 }
