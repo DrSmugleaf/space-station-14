@@ -1330,6 +1330,9 @@ namespace Content.Client.Lobby.UI
 
         public void UpdateSpeciesGuidebookIcon()
         {
+            if (!_cfgManager.GetCVar(CCVars.GuidebookShowEditorSpeciesButton))
+                return;
+
             SpeciesInfoButton.StyleClasses.Clear();
 
             var species = Profile?.Species;
